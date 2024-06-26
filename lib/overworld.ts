@@ -100,14 +100,40 @@ export class Overworld {
     })
   }
 
+  // move(key: {x: number, y: number}): void {
+  //   this.mapContainer.x -= key.x;
+  //   this.mapContainer.y -= key.y;
+  //   this.characterContainer.x -= key.x;
+  //   this.characterContainer.y -= key.y;
+  //   this.focusCharacterX += key.x;
+  //   this.focusCharacterY += key.y;
+  // }
+
+  // move(key: {x: number, y: number}): void {
+  //   console.log('Moving direction:', key);
+  //   this.mapContainer.x -= key.x;
+  //   this.mapContainer.y -= key.y;
+  //   this.characterContainer.x -= key.x;
+  //   this.characterContainer.y -= key.y;
+  //   this.focusCharacterX += key.x;
+  //   this.focusCharacterY += key.y;
+  //   // 打印当前角色位置
+  //   console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
+  // }
+  
+
   move(key: {x: number, y: number}): void {
+    console.log('Moving direction:', key);
     this.mapContainer.x -= key.x;
     this.mapContainer.y -= key.y;
     this.characterContainer.x -= key.x;
     this.characterContainer.y -= key.y;
     this.focusCharacterX += key.x;
     this.focusCharacterY += key.y;
+    // 打印当前角色位置
+    console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
   }
+  
 
   /**
    * Add a wall to the overworld
@@ -143,9 +169,19 @@ export class Overworld {
    * @param key - The key of the direction
    * @returns The next step of the character
    */
+
+  // getCharacterNextStep(key: {x: number, y: number}): number {
+  //   const nextStep = wallFormat(this.focusCharacterX / 16 + key.x, this.focusCharacterY / 16 + key.y);
+  //   console.log(nextStep);
+  //   return nextStep;
+  // }
+
   getCharacterNextStep(key: {x: number, y: number}): number {
-    const nextStep = wallFormat(this.focusCharacterX / 16 + key.x, this.focusCharacterY / 16 + key.y);
-    console.log(nextStep);
+    const nextStepX = Math.floor(this.focusCharacterX / this.gridSize) + key.x;
+    const nextStepY = Math.floor(this.focusCharacterY / this.gridSize) + key.y;
+    const nextStep = wallFormat(nextStepX, nextStepY);
+    console.log(`Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep}`);
     return nextStep;
   }
+  
 }
