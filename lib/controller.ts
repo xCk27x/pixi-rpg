@@ -13,6 +13,8 @@ export const keyMap = {
   KeyD: 'right',
   ArrowRight: 'right',
 };
+// test
+
 /**
  * Controller class to handle user input
  * ```typescript
