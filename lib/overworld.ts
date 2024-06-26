@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite, Container, AnimatedSprite } from 'npm:pixi.js';
+import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
 export class Overworld {
