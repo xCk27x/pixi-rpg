@@ -23,5 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install node-fetch
+        run: npm install node-fetch@2
+
       - name: Publish package
-        run: npx jsr publish
+        run: |
+          echo "const fetch = require('node-fetch'); global.fetch = fetch;" > fetch-polyfill.js
+          node fetch-polyfill.js
+          npx jsr publish
