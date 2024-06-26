@@ -1,0 +1,14 @@
+{
+  "name": "pixi-ncr",
+  "version": "1.0.0",
+  "description": "pixi-nuxt-canvas-rpg",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "pixi.js": "^8.1.5"
+  },
+  "author": "xck27x",
+  "license": "ISC"
+}
