@@ -41,33 +41,101 @@ export class Controller {
     this.world.app.ticker.add(() => this.tickerHandler());
   }
 
+  // tickerHandler() {
+  //   if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
+  //     // spriteSheet direction update
+  //     if (this.nextDirection[0] !== this.direction) {
+  //       this.direction = this.nextDirection[0];
+  //       console.log(this.direction);
+  //       this.world.focusCharacter!.changeAnime(this.direction);
+  //       this.world.focusCharacter!.anim.play();
+  //       // if next step is wall
+  //       const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
+  //       if (this.world.walls.has(nextStep)) {
+  //         this.nextDirection.shift();
+  //         return;
+  //       }
+  //     }
+  //     this.movingProgressRemaining = 16;
+  //   }
+    
+  //   if (this.movingProgressRemaining > 0) { 
+  //     const dire = this.keys[this.direction];
+  //     this.world.move(dire);
+  //     this.movingProgressRemaining -= 1;
+  //   } else {
+  //     this.direction = 'none';
+  //     this.world.focusCharacter!.anim.gotoAndStop(0);
+  //   }
+  // }
+
+  // tickerHandler() {
+  //   if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
+  //     // spriteSheet direction update
+  //     if (this.nextDirection[0] !== this.direction) {
+  //       this.direction = this.nextDirection[0];
+  //       this.world.focusCharacter!.changeAnime(this.direction);
+  //       this.world.focusCharacter!.anim.play();
+  //     }
+      
+  //     // 如果下一步是墙，则不进行移动
+  //     const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
+  //     if (this.world.walls.has(nextStep)) {
+  //       this.nextDirection.shift();
+  //       return;
+  //     }
+  
+  //     this.movingProgressRemaining = 16;
+  //   }
+    
+  //   if (this.movingProgressRemaining > 0) { 
+  //     const dire = this.keys[this.direction];
+  //     this.world.move(dire);
+  //     this.movingProgressRemaining -= 1;
+  //   } else {
+  //     this.direction = 'none';
+  //     this.world.focusCharacter!.anim.gotoAndStop(0);
+  //   }
+  // }
+  
   tickerHandler() {
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
       // spriteSheet direction update
       if (this.nextDirection[0] !== this.direction) {
         this.direction = this.nextDirection[0];
-        console.log(this.direction);
         this.world.focusCharacter!.changeAnime(this.direction);
         this.world.focusCharacter!.anim.play();
-        // if next step is wall
-        const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
-        if (this.world.walls.has(nextStep)) {
-          this.nextDirection.shift();
-          return;
-        }
       }
+  
+      const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
+      console.log('Next step:', nextStep);
+      console.log('Current position before move:', this.world.focusCharacterX, this.world.focusCharacterY);
+      console.log('Direction:', this.direction);
+      console.log('Next direction:', this.nextDirection);
+  
+      if (this.world.walls.has(nextStep)) {
+        console.log('Collision detected at step:', nextStep);
+        this.nextDirection.shift();
+        return;
+      }
+  
       this.movingProgressRemaining = 16;
     }
-    
-    if (this.movingProgressRemaining > 0) { 
+  
+    if (this.movingProgressRemaining > 0) {
       const dire = this.keys[this.direction];
       this.world.move(dire);
       this.movingProgressRemaining -= 1;
+      // 打印当前角色位置
+      console.log('Current position after move:', this.world.focusCharacterX, this.world.focusCharacterY);
     } else {
       this.direction = 'none';
       this.world.focusCharacter!.anim.gotoAndStop(0);
     }
   }
+  
+  
+  
 
   keydownHandler(event: KeyboardEvent) {
     console.log('keydown', event.code);
