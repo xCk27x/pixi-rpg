@@ -1,4 +1,5 @@
 import type { Overworld } from './overworld';
+import eventBus from './eventBus'; // 新增這行
 
 type Key = { x: number, y: number };
 type Keys = {[key: string]: Key};
@@ -132,6 +133,14 @@ export class Controller {
       this.movingProgressRemaining -= 1;
       // 打印当前角色位置
       console.log('Current position after move:', this.world.focusCharacterX, this.world.focusCharacterY);
+
+      // 检查触发器
+    const triggerDialog = this.world.checkTrigger();
+    if (triggerDialog) {
+      console.log('Trigger activated:', triggerDialog);
+      // 处理触发对话框
+      eventBus.emit('trigger-dialog', triggerDialog); // 使用事件總線發射事件
+    }
     } else {
       this.direction = 'none';
       this.world.focusCharacter!.anim.gotoAndStop(0);

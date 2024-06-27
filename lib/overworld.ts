@@ -1,6 +1,7 @@
 import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
+import eventBus from './eventBus'; // 导入事件总线
 export class Overworld {
   app!: Application;
   gridSize: number = 16;
@@ -16,6 +17,23 @@ export class Overworld {
   private canvas_id: string;
   private mapContainer!: Container;
   private characterContainer!: Container;
+
+// 在类定义顶部添加触发器的属性
+triggers: Map<number, string> = new Map(); // 管理触发器
+
+addTrigger(x: number, y: number, dialogText: string): void {
+  const triggerKey = wallFormat(x, y);
+  this.triggers.set(triggerKey, dialogText);
+}
+
+checkTrigger(): string | null {
+  const currentPosKey = wallFormat(
+    Math.floor(this.focusCharacterX / this.gridSize),
+    Math.floor(this.focusCharacterY / this.gridSize)
+  );
+  return this.triggers.get(currentPosKey) || null;
+}
+
 
   constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
     this.canvas_id = id;
@@ -132,6 +150,13 @@ export class Overworld {
     this.focusCharacterY += key.y;
     // 打印当前角色位置
     console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
+
+    // 检查触发器
+  const triggerDialog = this.checkTrigger();
+  if (triggerDialog) {
+    console.log('Trigger activated:', triggerDialog);
+    eventBus.emit('trigger-dialog', triggerDialog); // 使用事件总线发射事件
+  }
   }
   
 
@@ -183,5 +208,10 @@ export class Overworld {
     console.log(`Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep}`);
     return nextStep;
   }
+
+  // overworld.ts
+
+
+
   
 }
