@@ -20,6 +20,7 @@ export class Overworld {
 
 // 在类定义顶部添加触发器的属性
 triggers: Map<number, string> = new Map(); // 管理触发器
+lastTriggerPosition: { x: number; y: number } | null = null; // 新增此屬性記錄上次觸發的位置
 
 addTrigger(x: number, y: number, dialogText: string): void {
   const triggerKey = wallFormat(x, y);
@@ -32,6 +33,20 @@ checkTrigger(): string | null {
     Math.floor(this.focusCharacterY / this.gridSize)
   );
   return this.triggers.get(currentPosKey) || null;
+}
+
+
+checkDistanceFromLastTrigger() {
+  if (!this.lastTriggerPosition) return;
+
+  const currentX = Math.floor(this.focusCharacterX / this.gridSize);
+  const currentY = Math.floor(this.focusCharacterY / this.gridSize);
+  const distanceX = Math.abs(currentX - this.lastTriggerPosition.x);
+  const distanceY = Math.abs(currentY - this.lastTriggerPosition.y);
+
+  if (distanceX > 1 || distanceY > 1) {
+    eventBus.emit('leave-trigger-area');
+  }
 }
 
 

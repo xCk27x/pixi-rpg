@@ -113,10 +113,10 @@ export class Controller {
       }
   
       const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
-      console.log('Next step:', nextStep);
-      console.log('Current position before move:', this.world.focusCharacterX, this.world.focusCharacterY);
-      console.log('Direction:', this.direction);
-      console.log('Next direction:', this.nextDirection);
+      // console.log('Next step:', nextStep);
+      // console.log('Current position before move:', this.world.focusCharacterX, this.world.focusCharacterY);
+      // console.log('Direction:', this.direction);
+      // console.log('Next direction:', this.nextDirection);
   
       if (this.world.walls.has(nextStep)) {
         console.log('Collision detected at step:', nextStep);
@@ -140,6 +140,12 @@ export class Controller {
       console.log('Trigger activated:', triggerDialog);
       // 处理触发对话框
       eventBus.emit('trigger-dialog', triggerDialog); // 使用事件總線發射事件
+      this.world.lastTriggerPosition = {
+        x: Math.floor(this.world.focusCharacterX / this.world.gridSize),
+        y: Math.floor(this.world.focusCharacterY / this.world.gridSize)
+      };
+    }else{
+      this.world.checkDistanceFromLastTrigger();
     }
     } else {
       this.direction = 'none';
