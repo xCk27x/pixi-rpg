@@ -143,6 +143,7 @@ export class Controller {
     }
     } else {
       this.direction = 'none';
+      // eventBus.emit('leave-trigger-area');
       this.world.focusCharacter!.anim.gotoAndStop(0);
     }
   }
