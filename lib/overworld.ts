@@ -1,6 +1,7 @@
 import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
+import eventBus from './eventBus'; // 导入事件总线
 export class Overworld {
   app!: Application;
   gridSize: number = 16;
@@ -16,12 +17,49 @@ export class Overworld {
   private canvas_id: string;
   private mapContainer!: Container;
   private characterContainer!: Container;
+  private mapUpperContainer!: Container;
+
+// 在类定义顶部添加触发器的属性
+triggers: Map<number, string> = new Map(); // 管理触发器
+lastTriggerPosition: { x: number; y: number } | null = null; // 新增此屬性記錄上次觸發的位置
+
+
+
+
+addTrigger(x: number, y: number, dialogText: string): void {
+  const triggerKey = wallFormat(x, y);
+  this.triggers.set(triggerKey, dialogText);
+}
+
+checkTrigger(): string | null {
+  const currentPosKey = wallFormat(
+    Math.floor(this.focusCharacterX / this.gridSize),
+    Math.floor(this.focusCharacterY / this.gridSize)
+  );
+  return this.triggers.get(currentPosKey) || null;
+}
+
+
+checkDistanceFromLastTrigger() {
+  if (!this.lastTriggerPosition) return;
+
+  const currentX = Math.floor(this.focusCharacterX / this.gridSize);
+  const currentY = Math.floor(this.focusCharacterY / this.gridSize);
+  const distanceX = Math.abs(currentX - this.lastTriggerPosition.x);
+  const distanceY = Math.abs(currentY - this.lastTriggerPosition.y);
+
+  if (distanceX > 1 || distanceY > 1) {
+    eventBus.emit('leave-trigger-area');
+  }
+}
+
 
   constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
     this.canvas_id = id;
     this.canvas_height = height;
     this.canvas_width = width;
     this.mapContainer = new Container();
+    this.mapUpperContainer = new Container();
     this.canvasInit();
   }
 
@@ -39,7 +77,11 @@ export class Overworld {
       return;
     }
     this.characterContainer = new Container();
-    app.stage.addChild(this.mapContainer, this.characterContainer);
+    app.stage.addChild(this.mapContainer, this.characterContainer,this.mapUpperContainer);
+
+    this.mapUpperContainer.zIndex = 100000000;
+
+    this.app.stage.sortChildren();
     console.log('Canvas initialized');
   }
 
@@ -58,9 +100,19 @@ export class Overworld {
     this.upperMapSprite = Sprite.from(texture);
     this.upperMapSprite.anchor.set(0);
     this.upperMapSprite.position.set(pivotX * 16, pivotY * 16);
-    this.mapContainer.addChild(this.upperMapSprite);
+    this.upperMapSprite.zIndex = 100000000;
+    this.app.stage.sortChildren();
+    this.mapUpperContainer.addChild(this.upperMapSprite);
+    this.upperMapSprite.zIndex = 100000000;
+    this.app.stage.sortChildren();
+
     console.log('Upper map loaded');
     return this.upperMapSprite;
+  }
+
+
+  async sortChildren() {
+    this.app.stage.sortChildren();
   }
 
   /**
@@ -100,38 +152,26 @@ export class Overworld {
     })
   }
 
-  // move(key: {x: number, y: number}): void {
-  //   this.mapContainer.x -= key.x;
-  //   this.mapContainer.y -= key.y;
-  //   this.characterContainer.x -= key.x;
-  //   this.characterContainer.y -= key.y;
-  //   this.focusCharacterX += key.x;
-  //   this.focusCharacterY += key.y;
-  // }
-
-  // move(key: {x: number, y: number}): void {
-  //   console.log('Moving direction:', key);
-  //   this.mapContainer.x -= key.x;
-  //   this.mapContainer.y -= key.y;
-  //   this.characterContainer.x -= key.x;
-  //   this.characterContainer.y -= key.y;
-  //   this.focusCharacterX += key.x;
-  //   this.focusCharacterY += key.y;
-  //   // 打印当前角色位置
-  //   console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
-  // }
-  
 
   move(key: {x: number, y: number}): void {
     console.log('Moving direction:', key);
     this.mapContainer.x -= key.x;
     this.mapContainer.y -= key.y;
+    this.mapUpperContainer.x -= key.x;
+    this.mapUpperContainer.y -= key.y;
     this.characterContainer.x -= key.x;
     this.characterContainer.y -= key.y;
     this.focusCharacterX += key.x;
     this.focusCharacterY += key.y;
     // 打印当前角色位置
     console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
+
+    // 检查触发器
+  const triggerDialog = this.checkTrigger();
+  if (triggerDialog) {
+    console.log('Trigger activated:', triggerDialog);
+    eventBus.emit('trigger-dialog', triggerDialog); // 使用事件总线发射事件
+  }
   }
   
 
@@ -180,8 +220,9 @@ export class Overworld {
     const nextStepX = Math.floor(this.focusCharacterX / this.gridSize) + key.x;
     const nextStepY = Math.floor(this.focusCharacterY / this.gridSize) + key.y;
     const nextStep = wallFormat(nextStepX, nextStepY);
-    console.log(`Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep}`);
+    // console.log(Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep});
     return nextStep;
   }
-  
+
+  // overworld.ts
 }
