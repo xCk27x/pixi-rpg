@@ -22,6 +22,9 @@ export class Overworld {
 triggers: Map<number, string> = new Map(); // 管理触发器
 lastTriggerPosition: { x: number; y: number } | null = null; // 新增此屬性記錄上次觸發的位置
 
+
+
+
 addTrigger(x: number, y: number, dialogText: string): void {
   const triggerKey = wallFormat(x, y);
   this.triggers.set(triggerKey, dialogText);
@@ -133,27 +136,6 @@ checkDistanceFromLastTrigger() {
     })
   }
 
-  // move(key: {x: number, y: number}): void {
-  //   this.mapContainer.x -= key.x;
-  //   this.mapContainer.y -= key.y;
-  //   this.characterContainer.x -= key.x;
-  //   this.characterContainer.y -= key.y;
-  //   this.focusCharacterX += key.x;
-  //   this.focusCharacterY += key.y;
-  // }
-
-  // move(key: {x: number, y: number}): void {
-  //   console.log('Moving direction:', key);
-  //   this.mapContainer.x -= key.x;
-  //   this.mapContainer.y -= key.y;
-  //   this.characterContainer.x -= key.x;
-  //   this.characterContainer.y -= key.y;
-  //   this.focusCharacterX += key.x;
-  //   this.focusCharacterY += key.y;
-  //   // 打印当前角色位置
-  //   console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
-  // }
-  
 
   move(key: {x: number, y: number}): void {
     console.log('Moving direction:', key);
@@ -220,13 +202,9 @@ checkDistanceFromLastTrigger() {
     const nextStepX = Math.floor(this.focusCharacterX / this.gridSize) + key.x;
     const nextStepY = Math.floor(this.focusCharacterY / this.gridSize) + key.y;
     const nextStep = wallFormat(nextStepX, nextStepY);
-    console.log(`Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep}`);
+    // console.log(Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep});
     return nextStep;
   }
 
   // overworld.ts
-
-
-
-  
 }
