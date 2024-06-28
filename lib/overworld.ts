@@ -17,6 +17,7 @@ export class Overworld {
   private canvas_id: string;
   private mapContainer!: Container;
   private characterContainer!: Container;
+  private mapUpperContainer!: Container;
 
 // 在类定义顶部添加触发器的属性
 triggers: Map<number, string> = new Map(); // 管理触发器
@@ -58,6 +59,7 @@ checkDistanceFromLastTrigger() {
     this.canvas_height = height;
     this.canvas_width = width;
     this.mapContainer = new Container();
+    this.mapUpperContainer = new Container();
     this.canvasInit();
   }
 
@@ -75,7 +77,11 @@ checkDistanceFromLastTrigger() {
       return;
     }
     this.characterContainer = new Container();
-    app.stage.addChild(this.mapContainer, this.characterContainer);
+    app.stage.addChild(this.mapContainer, this.characterContainer,this.mapUpperContainer);
+
+    this.mapUpperContainer.zIndex = 100000000;
+
+    this.app.stage.sortChildren();
     console.log('Canvas initialized');
   }
 
@@ -94,9 +100,19 @@ checkDistanceFromLastTrigger() {
     this.upperMapSprite = Sprite.from(texture);
     this.upperMapSprite.anchor.set(0);
     this.upperMapSprite.position.set(pivotX * 16, pivotY * 16);
-    this.mapContainer.addChild(this.upperMapSprite);
+    this.upperMapSprite.zIndex = 100000000;
+    this.app.stage.sortChildren();
+    this.mapUpperContainer.addChild(this.upperMapSprite);
+    this.upperMapSprite.zIndex = 100000000;
+    this.app.stage.sortChildren();
+
     console.log('Upper map loaded');
     return this.upperMapSprite;
+  }
+
+
+  async sortChildren() {
+    this.app.stage.sortChildren();
   }
 
   /**
@@ -141,6 +157,8 @@ checkDistanceFromLastTrigger() {
     console.log('Moving direction:', key);
     this.mapContainer.x -= key.x;
     this.mapContainer.y -= key.y;
+    this.mapUpperContainer.x -= key.x;
+    this.mapUpperContainer.y -= key.y;
     this.characterContainer.x -= key.x;
     this.characterContainer.y -= key.y;
     this.focusCharacterX += key.x;
