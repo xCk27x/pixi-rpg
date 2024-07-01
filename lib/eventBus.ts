@@ -1,5 +1,6 @@
 // eventBus.ts
 import mitt from 'mitt';
+import type { Emitter } from 'mitt';
 
 type Events = {
   'trigger-dialog': string;
@@ -9,6 +10,6 @@ type Events = {
   'navigate': string;   
 };
 
-export const eventBus = mitt<Events>();
+export const eventBus: Emitter<Events> = mitt<Events>();
 
 // export default eventBus;
