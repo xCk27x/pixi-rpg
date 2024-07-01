@@ -98,7 +98,7 @@ eventBus.on('move-stop', (direction) => this.stopMove(direction));
       this.world.move(dire);
       this.movingProgressRemaining -= 1;
       // 打印当前角色位置
-      console.log('Current position after move:', this.world.focusCharacterX, this.world.focusCharacterY);
+      console.log('Current position after move:', Math.floor(this.world.focusCharacterX / this.world.gridSize), Math.floor(this.world.focusCharacterY / this.world.gridSize));
 
       // 检查触发器
     const triggerDialog = this.world.checkTrigger();

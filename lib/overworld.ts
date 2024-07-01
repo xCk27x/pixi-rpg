@@ -164,7 +164,7 @@ checkDistanceFromLastTrigger() {
     this.focusCharacterX += key.x;
     this.focusCharacterY += key.y;
     // 打印当前角色位置
-    console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
+    
 
     // 检查触发器
   const triggerDialog = this.checkTrigger();
