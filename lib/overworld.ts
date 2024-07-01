@@ -1,12 +1,13 @@
 import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
-import {eventBus} from './eventBus'; // 导入事件总线
+import { eventBus } from './eventBus'; // 导入事件总线
 
 type Trigger = {
   dialogText: string;
   route?: string;
 };
+
 export class Overworld {
   app!: Application;
   gridSize: number = 16;
@@ -25,24 +26,25 @@ export class Overworld {
   private mapUpperContainer!: Container;
 
 // 在类定义顶部添加触发器的属性
-triggers: Map<number, Trigger> = new Map(); // 管理触发器
+triggers: Map<number, string> = new Map(); // 管理触发器
 lastTriggerPosition: { x: number; y: number } | null = null; // 新增此屬性記錄上次觸發的位置
 
 
 
 
-addTrigger(x: number, y: number, dialogText: string,route?: string): void {
+addTrigger(x: number, y: number, dialogText: string): void {
   const triggerKey = wallFormat(x, y);
-  this.triggers.set(triggerKey, { dialogText, route });
+  this.triggers.set(triggerKey, dialogText);
 }
 
-checkTrigger(): { dialogText: string, route?: string } | null {
+checkTrigger(): string | null {
   const currentPosKey = wallFormat(
     Math.floor(this.focusCharacterX / this.gridSize),
     Math.floor(this.focusCharacterY / this.gridSize)
   );
   return this.triggers.get(currentPosKey) || null;
 }
+
 
 checkDistanceFromLastTrigger() {
   if (!this.lastTriggerPosition) return;
@@ -157,59 +159,25 @@ checkDistanceFromLastTrigger() {
   }
 
 
-  // move(key: {x: number, y: number}, stepSize: number = 1): void {
-  //   console.log('Moving direction:', key);
-  //   this.mapContainer.x -= key.x * stepSize;
-  //   this.mapContainer.y -= key.y * stepSize;
-  //   this.mapUpperContainer.x -= key.x * stepSize;
-  //   this.mapUpperContainer.y -= key.y * stepSize;
-  //   this.characterContainer.x -= key.x * stepSize;
-  //   this.characterContainer.y -= key.y * stepSize;
-  //   this.focusCharacterX += key.x * stepSize;
-  //   this.focusCharacterY += key.y * stepSize;
-  //   console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
-  
-  //   const trigger = this.checkTrigger();
-  //   if (trigger) {
-  //     console.log('Trigger activated:', trigger.dialogText);
-  //     eventBus.emit('trigger-dialog', trigger.dialogText);
-  //     if (trigger.route) {
-  //       console.log('Route:', trigger.route);
-  //     }
-  //   }
-  // }
-
-  move(key: {x: number, y: number}, stepSize: number = 1): void {
+  move(key: {x: number, y: number}): void {
     console.log('Moving direction:', key);
-    for (let i = 0; i < stepSize; i++) {
-      const nextX = this.focusCharacterX + key.x;
-      const nextY = this.focusCharacterY + key.y;
-      const nextStep = wallFormat(Math.floor(nextX / this.gridSize), Math.floor(nextY / this.gridSize));
-      
-      if (this.walls.has(nextStep)) {
-        console.log('Collision detected at step:', nextStep);
-        return;
-      }
-  
-      this.mapContainer.x -= key.x;
-      this.mapContainer.y -= key.y;
-      this.mapUpperContainer.x -= key.x;
-      this.mapUpperContainer.y -= key.y;
-      this.characterContainer.x -= key.x;
-      this.characterContainer.y -= key.y;
-      this.focusCharacterX = nextX;
-      this.focusCharacterY = nextY;
-    }
-    console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
-  
-    const trigger = this.checkTrigger();
-    if (trigger) {
-      console.log('Trigger activated:', trigger.dialogText);
-      eventBus.emit('trigger-dialog', trigger.dialogText);
-      if (trigger.route) {
-        console.log('Route:', trigger.route);
-      }
-    }
+    this.mapContainer.x -= key.x;
+    this.mapContainer.y -= key.y;
+    this.mapUpperContainer.x -= key.x;
+    this.mapUpperContainer.y -= key.y;
+    this.characterContainer.x -= key.x;
+    this.characterContainer.y -= key.y;
+    this.focusCharacterX += key.x;
+    this.focusCharacterY += key.y;
+    // 打印当前角色位置
+    console.log('Current position after move:', this.focusCharacterX, this.focusCharacterY);
+
+    // 检查触发器
+  const triggerDialog = this.checkTrigger();
+  if (triggerDialog) {
+    console.log('Trigger activated:', triggerDialog);
+    eventBus.emit('trigger-dialog', triggerDialog); // 使用事件总线发射事件
+  }
   }
   
 
