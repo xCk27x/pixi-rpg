@@ -1,7 +1,7 @@
 import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
-import eventBus from './eventBus'; // 导入事件总线
+import {eventBus} from './eventBus'; // 导入事件总线
 
 type Trigger = {
   dialogText: string;
