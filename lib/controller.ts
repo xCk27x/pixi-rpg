@@ -1,5 +1,5 @@
 import type { Overworld } from './overworld';
-import eventBus from './eventBus'; // 新增這行
+import {eventBus} from './eventBus'; // 新增這行
 
 type Key = { x: number, y: number };
 type Keys = {[key: string]: Key};
