@@ -1,5 +1,5 @@
 {
   "name": "@xck27x/pixi-rpg",
-  "version": "0.1.4",
+  "version": "0.1.3",
   "exports": "./index.ts"
 }
