@@ -42,7 +42,7 @@ export class Controller {
   private direction: string = 'down';
   private nextDirection: string[] = [];
   private movingProgressRemaining: number = 0;
-  
+
   constructor(world: Overworld) {
     this.world = world;
     window.addEventListener('keydown', (event) => this.keydownHandler(event), { passive: false });
@@ -101,15 +101,20 @@ eventBus.on('move-stop', (direction) => this.stopMove(direction));
       console.log('Current position after move:', Math.floor(this.world.focusCharacterX / this.world.gridSize), Math.floor(this.world.focusCharacterY / this.world.gridSize));
 
       // 检查触发器
-    const triggerDialog = this.world.checkTrigger();
-    if (triggerDialog) {
-      console.log('Trigger activated:', triggerDialog);
+    const tri = this.world.checkTrigger();
+    const trigger = this.world.checkTrigger();
+    if (trigger) {
+      console.log('Trigger activated:', trigger.dialogText);
       // 处理触发对话框
-      eventBus.emit('trigger-dialog', triggerDialog); // 使用事件總線發射事件
+      eventBus.emit('trigger-dialog', trigger.dialogText); // 使用事件總線發射事件
       this.world.lastTriggerPosition = {
         x: Math.floor(this.world.focusCharacterX / this.world.gridSize),
         y: Math.floor(this.world.focusCharacterY / this.world.gridSize)
       };
+
+      if (trigger.route) {
+        eventBus.emit('navigate', trigger.route);
+      }
     }else{
       this.world.checkDistanceFromLastTrigger();
     }

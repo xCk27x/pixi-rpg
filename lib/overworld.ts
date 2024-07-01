@@ -2,6 +2,11 @@ import { Application, Assets, Sprite, Container, AnimatedSprite } from 'pixi.js'
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
 import eventBus from './eventBus'; // 导入事件总线
+
+type Trigger = {
+  dialogText: string;
+  route?: string;
+};
 export class Overworld {
   app!: Application;
   gridSize: number = 16;
@@ -20,25 +25,24 @@ export class Overworld {
   private mapUpperContainer!: Container;
 
 // 在类定义顶部添加触发器的属性
-triggers: Map<number, string> = new Map(); // 管理触发器
+triggers: Map<number, Trigger> = new Map(); // 管理触发器
 lastTriggerPosition: { x: number; y: number } | null = null; // 新增此屬性記錄上次觸發的位置
 
 
 
 
-addTrigger(x: number, y: number, dialogText: string): void {
+addTrigger(x: number, y: number, dialogText: string,route?: string): void {
   const triggerKey = wallFormat(x, y);
-  this.triggers.set(triggerKey, dialogText);
+  this.triggers.set(triggerKey, { dialogText, route });
 }
 
-checkTrigger(): string | null {
+checkTrigger(): { dialogText: string, route?: string } | null {
   const currentPosKey = wallFormat(
     Math.floor(this.focusCharacterX / this.gridSize),
     Math.floor(this.focusCharacterY / this.gridSize)
   );
   return this.triggers.get(currentPosKey) || null;
 }
-
 
 checkDistanceFromLastTrigger() {
   if (!this.lastTriggerPosition) return;
@@ -167,10 +171,14 @@ checkDistanceFromLastTrigger() {
     
 
     // 检查触发器
-  const triggerDialog = this.checkTrigger();
-  if (triggerDialog) {
-    console.log('Trigger activated:', triggerDialog);
-    eventBus.emit('trigger-dialog', triggerDialog); // 使用事件总线发射事件
+  const trigger = this.checkTrigger();
+  if (trigger) {
+    console.log('Trigger activated:', trigger.dialogText);
+    eventBus.emit('trigger-dialog', trigger.dialogText); // 使用事件总线发射事件
+
+    if (trigger.route) {
+      console.log('Route:', trigger.route);
+    }
   }
   }
   
