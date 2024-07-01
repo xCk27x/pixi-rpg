@@ -8,6 +8,6 @@ type Events = {
   'move-stop': string;
 };
 
-const eventBus = mitt<Events>();
+export const eventBus = mitt<Events>();
 
-export default eventBus;
+// export default eventBus;
