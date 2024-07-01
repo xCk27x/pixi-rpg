@@ -43,31 +43,21 @@ export class Controller {
   private nextDirection: string[] = [];
   private movingProgressRemaining: number = 0;
 
+  private runTimer: number | null = null;
+  private isRunning: boolean = false;
+
   constructor(world: Overworld) {
     this.world = world;
     window.addEventListener('keydown', (event) => this.keydownHandler(event), { passive: false });
     window.addEventListener('keyup', (event) => this.keyupHandler(event));
     // window.addEventListener('click', (event) => this.handleScreenClick(event)); // 新增這行
     eventBus.on('move-start', (direction) => this.startMove(direction));
-eventBus.on('move-stop', (direction) => this.stopMove(direction));
+    eventBus.on('move-stop', (direction) => this.stopMove(direction));
 
     this.world.app.ticker.add(() => this.tickerHandler());
   }
 
-  // handleScreenClick(event: MouseEvent) {
-  //   const rect = (event.target as HTMLElement).getBoundingClientRect();
-  //   const x = event.clientX - rect.left;
-  //   const y = event.clientY - rect.top;
-  //   if (x < rect.width / 3) {
-  //     this.move('left');
-  //   } else if (x > rect.width * 2 / 3) {
-  //     this.move('right');
-  //   } else if (y < rect.height / 3) {
-  //     this.move('up');
-  //   } else if (y > rect.height * 2 / 3) {
-  //     this.move('down');
-  //   }
-  // }
+
   
   tickerHandler() {
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
@@ -79,29 +69,36 @@ eventBus.on('move-stop', (direction) => this.stopMove(direction));
       }
   
       const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
-      // console.log('Next step:', nextStep);
-      // console.log('Current position before move:', this.world.focusCharacterX, this.world.focusCharacterY);
-      // console.log('Direction:', this.direction);
-      // console.log('Next direction:', this.nextDirection);
-  
+
       if (this.world.walls.has(nextStep)) {
         console.log('Collision detected at step:', nextStep);
         this.nextDirection.shift();
         return;
       }
   
-      this.movingProgressRemaining = 16;
+      // this.movingProgressRemaining = this.isRunning ? 32 : 16; // 跑步时加快速度
+      this.movingProgressRemaining = 16; 
     }
   
     if (this.movingProgressRemaining > 0) {
       const dire = this.keys[this.direction];
-      this.world.move(dire);
-      this.movingProgressRemaining -= 1;
+      const stepSize = this.isRunning ? 2 : 1;
+      for (let i = 0; i < stepSize; i++) {
+        if (this.movingProgressRemaining > 0) {
+          this.world.move(dire, 1);
+          this.movingProgressRemaining -= 1;
+        }
+      }
+
+      // const dire = this.keys[this.direction];
+      // // this.world.move(dire);
+      // this.world.move(dire, this.isRunning ? 2 : 1);
+      // this.movingProgressRemaining -= 1;
       // 打印当前角色位置
       console.log('Current position after move:', Math.floor(this.world.focusCharacterX / this.world.gridSize), Math.floor(this.world.focusCharacterY / this.world.gridSize));
 
       // 检查触发器
-    const tri = this.world.checkTrigger();
+
     const trigger = this.world.checkTrigger();
     if (trigger) {
       console.log('Trigger activated:', trigger.dialogText);
@@ -134,6 +131,7 @@ eventBus.on('move-stop', (direction) => this.stopMove(direction));
     const key = keyMap[event.code as keyof typeof keyMap];
     if (key && this.nextDirection.indexOf(key) === -1) {
       this.nextDirection.unshift(key);
+      this.startRunTimer();
     }
   }
 
@@ -144,11 +142,13 @@ eventBus.on('move-stop', (direction) => this.stopMove(direction));
     const index = this.nextDirection.indexOf(key);
     if (index === -1) return;
     this.nextDirection.splice(index, 1);
+    this.stopRunTimer();
   }
 
   startMove(direction: string) {
     if (this.nextDirection.indexOf(direction) === -1) {
       this.nextDirection.unshift(direction);
+      this.startRunTimer();
     }
   }
   
@@ -156,11 +156,27 @@ eventBus.on('move-stop', (direction) => this.stopMove(direction));
     const index = this.nextDirection.indexOf(direction);
     if (index !== -1) {
       this.nextDirection.splice(index, 1);
+      this.stopRunTimer();
     }
   }
   
 
   updatePosition() {
     
+  }
+
+  startRunTimer() {
+    this.stopRunTimer(); // 确保之前的计时器被清除
+    this.runTimer = window.setTimeout(() => {
+      this.isRunning = true;
+    }, 500);
+  }
+
+  stopRunTimer() {
+    if (this.runTimer !== null) {
+      window.clearTimeout(this.runTimer);
+      this.runTimer = null;
+    }
+    this.isRunning = false;
   }
 }

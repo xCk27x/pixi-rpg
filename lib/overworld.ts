@@ -157,29 +157,59 @@ checkDistanceFromLastTrigger() {
   }
 
 
-  move(key: {x: number, y: number}): void {
+  // move(key: {x: number, y: number}, stepSize: number = 1): void {
+  //   console.log('Moving direction:', key);
+  //   this.mapContainer.x -= key.x * stepSize;
+  //   this.mapContainer.y -= key.y * stepSize;
+  //   this.mapUpperContainer.x -= key.x * stepSize;
+  //   this.mapUpperContainer.y -= key.y * stepSize;
+  //   this.characterContainer.x -= key.x * stepSize;
+  //   this.characterContainer.y -= key.y * stepSize;
+  //   this.focusCharacterX += key.x * stepSize;
+  //   this.focusCharacterY += key.y * stepSize;
+  //   console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
+  
+  //   const trigger = this.checkTrigger();
+  //   if (trigger) {
+  //     console.log('Trigger activated:', trigger.dialogText);
+  //     eventBus.emit('trigger-dialog', trigger.dialogText);
+  //     if (trigger.route) {
+  //       console.log('Route:', trigger.route);
+  //     }
+  //   }
+  // }
+
+  move(key: {x: number, y: number}, stepSize: number = 1): void {
     console.log('Moving direction:', key);
-    this.mapContainer.x -= key.x;
-    this.mapContainer.y -= key.y;
-    this.mapUpperContainer.x -= key.x;
-    this.mapUpperContainer.y -= key.y;
-    this.characterContainer.x -= key.x;
-    this.characterContainer.y -= key.y;
-    this.focusCharacterX += key.x;
-    this.focusCharacterY += key.y;
-    // 打印当前角色位置
-    
-
-    // 检查触发器
-  const trigger = this.checkTrigger();
-  if (trigger) {
-    console.log('Trigger activated:', trigger.dialogText);
-    eventBus.emit('trigger-dialog', trigger.dialogText); // 使用事件总线发射事件
-
-    if (trigger.route) {
-      console.log('Route:', trigger.route);
+    for (let i = 0; i < stepSize; i++) {
+      const nextX = this.focusCharacterX + key.x;
+      const nextY = this.focusCharacterY + key.y;
+      const nextStep = wallFormat(Math.floor(nextX / this.gridSize), Math.floor(nextY / this.gridSize));
+      
+      if (this.walls.has(nextStep)) {
+        console.log('Collision detected at step:', nextStep);
+        return;
+      }
+  
+      this.mapContainer.x -= key.x;
+      this.mapContainer.y -= key.y;
+      this.mapUpperContainer.x -= key.x;
+      this.mapUpperContainer.y -= key.y;
+      this.characterContainer.x -= key.x;
+      this.characterContainer.y -= key.y;
+      this.focusCharacterX = nextX;
+      this.focusCharacterY = nextY;
     }
-  }
+    console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
+  
+    const trigger = this.checkTrigger();
+    if (trigger) {
+      console.log('Trigger activated:', trigger.dialogText);
+      eventBus.emit('trigger-dialog', trigger.dialogText);
+      if (trigger.route) {
+        console.log('Route:', trigger.route);
+      }
+    }
   }
   
 
