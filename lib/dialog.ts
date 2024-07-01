@@ -1,5 +1,5 @@
 // import { ref } from 'vue';
-import { ref } from 'vue';
+import { ref } from 'npm:vue';
 
 export class Dialog {
   private dialogText = ref<string>('');
