@@ -41,7 +41,7 @@ export class Dialog {
   }
 }
 
-export const useDialog = (initialText: string = '') => {
+export const useDialog: (initialText?: string) => Dialog = (initialText: string = '') => {
   const dialog = new Dialog(initialText);
   return dialog;
 };
