@@ -1,5 +1,6 @@
-// import { ref } from 'vue';
 import { ref } from 'vue';
+// import { ref } from 'npm:vue@^3.4.21';
+// import { ref } from 'npm:vue@^3.4.21';
 
 export class Dialog {
   private dialogText = ref<string>('');
@@ -32,7 +33,7 @@ export class Dialog {
     typeNextCharacter();
   }
 
-  
+
   getText(): string {
     return this.dialogText.value;
   }
