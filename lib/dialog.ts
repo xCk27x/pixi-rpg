@@ -32,11 +32,11 @@ export class Dialog {
     typeNextCharacter();
   }
 
-  getText() {
+  getText(): string {
     return this.dialogText.value;
   }
 
-  stopTyping() {
+  stopTyping(): void {
     clearTimeout(this.typingTimeout);
   }
 }
