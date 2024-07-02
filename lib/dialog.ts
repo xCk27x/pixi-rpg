@@ -10,7 +10,7 @@ export class Dialog {
     this.dialogText.value = initialText;
   }
 
-  setText(newText: string) {
+  setText(newText:string) {
     this.fullText = newText;
     this.dialogText.value = '';
     this.stopTyping(); // 确保在开始新的打字效果前，取消任何现有的打字效果
@@ -32,6 +32,7 @@ export class Dialog {
     typeNextCharacter();
   }
 
+  
   getText(): string {
     return this.dialogText.value;
   }
