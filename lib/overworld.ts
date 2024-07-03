@@ -3,8 +3,9 @@ import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
 import {eventBus} from './eventBus'; // 导入事件总线
 
+
 type Trigger = {
-  dialogText: string;
+  dialogText: string | string[];
   route?: string;
 };
 export class Overworld {
@@ -26,36 +27,38 @@ export class Overworld {
 
 // 在类定义顶部添加触发器的属性
 triggers: Map<number, Trigger> = new Map(); // 管理触发器
-lastTriggerPosition: { x: number; y: number } | null = null; // 新增此屬性記錄上次觸發的位置
+lastTriggerPosition: number = 0 // 新增此屬性記錄上次觸發的位置
+isDialogActive: boolean = false;
 
-
-
-
-addTrigger(x: number, y: number, dialogText: string,route?: string): void {
+addTrigger(x: number, y: number, dialogText: string | string[], route?: string): void {
   const triggerKey = wallFormat(x, y);
   this.triggers.set(triggerKey, { dialogText, route });
 }
 
-checkTrigger(): { dialogText: string, route?: string } | null {
+checkTrigger(): { dialogText: string | string[], route?: string } | null {
   const currentPosKey = wallFormat(
     Math.floor(this.focusCharacterX / this.gridSize),
     Math.floor(this.focusCharacterY / this.gridSize)
   );
+
+  if (this.lastTriggerPosition === currentPosKey) return null;  // 如果位置相同，则不触发对话
+
+  this.lastTriggerPosition = currentPosKey; // 更新最后触发的位置
   return this.triggers.get(currentPosKey) || null;
 }
 
-checkDistanceFromLastTrigger() {
-  if (!this.lastTriggerPosition) return;
+// checkDistanceFromLastTrigger() {
+//   if (!this.lastTriggerPosition) return;
 
-  const currentX = Math.floor(this.focusCharacterX / this.gridSize);
-  const currentY = Math.floor(this.focusCharacterY / this.gridSize);
-  const distanceX = Math.abs(currentX - this.lastTriggerPosition.x);
-  const distanceY = Math.abs(currentY - this.lastTriggerPosition.y);
+//   const currentX = Math.floor(this.focusCharacterX / this.gridSize);
+//   const currentY = Math.floor(this.focusCharacterY / this.gridSize);
+//   const distanceX = Math.abs(currentX - this.lastTriggerPosition.x);
+//   const distanceY = Math.abs(currentY - this.lastTriggerPosition.y);
 
-  if (distanceX > 1 || distanceY > 1) {
-    eventBus.emit('leave-trigger-area');
-  }
-}
+//   if (distanceX > 1 || distanceY > 1) {
+//     eventBus.emit('leave-trigger-area');
+//   }
+// }
 
 
   // constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
@@ -184,35 +187,28 @@ checkDistanceFromLastTrigger() {
     console.log(`Image added at (${x}, ${y})`);
   }
 
-  // move(key: {x: number, y: number}, stepSize: number = 1): void {
-  //   console.log('Moving direction:', key);
-  //   this.mapContainer.x -= key.x * stepSize;
-  //   this.mapContainer.y -= key.y * stepSize;
-  //   this.mapUpperContainer.x -= key.x * stepSize;
-  //   this.mapUpperContainer.y -= key.y * stepSize;
-  //   this.characterContainer.x -= key.x * stepSize;
-  //   this.characterContainer.y -= key.y * stepSize;
-  //   this.focusCharacterX += key.x * stepSize;
-  //   this.focusCharacterY += key.y * stepSize;
-  //   console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
   
-  //   const trigger = this.checkTrigger();
-  //   if (trigger) {
-  //     console.log('Trigger activated:', trigger.dialogText);
-  //     eventBus.emit('trigger-dialog', trigger.dialogText);
-  //     if (trigger.route) {
-  //       console.log('Route:', trigger.route);
-  //     }
-  //   }
-  // }
 
-  move(key: {x: number, y: number}, stepSize: number = 1): void {
+  move(key: { x: number, y: number }, stepSize: number = 1): void {
+    if (this.isDialogActive) {
+      // Align the character to the grid before returning
+      this.focusCharacterX = Math.floor(this.focusCharacterX / this.gridSize) * this.gridSize;
+      this.focusCharacterY = Math.floor(this.focusCharacterY / this.gridSize) * this.gridSize;
+      this.mapContainer.x = -this.focusCharacterX;
+      this.mapContainer.y = -this.focusCharacterY;
+      this.mapUpperContainer.x = -this.focusCharacterX;
+      this.mapUpperContainer.y = -this.focusCharacterY;
+      this.characterContainer.x = -this.focusCharacterX;
+      this.characterContainer.y = -this.focusCharacterY;
+      return;
+    }
+  
     console.log('Moving direction:', key);
     for (let i = 0; i < stepSize; i++) {
       const nextX = this.focusCharacterX + key.x;
       const nextY = this.focusCharacterY + key.y;
       const nextStep = wallFormat(Math.floor(nextX / this.gridSize), Math.floor(nextY / this.gridSize));
-      
+  
       if (this.walls.has(nextStep)) {
         console.log('Collision detected at step:', nextStep);
         return;
@@ -229,15 +225,25 @@ checkDistanceFromLastTrigger() {
     }
     console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
   
-    const trigger = this.checkTrigger();
-    if (trigger) {
-      console.log('Trigger activated:', trigger.dialogText);
-      eventBus.emit('trigger-dialog', trigger.dialogText);
-      if (trigger.route) {
-        console.log('Route:', trigger.route);
+    if (!this.isDialogActive) { // 仅在对话框未激活时检查触发器
+      const trigger = this.checkTrigger();
+      if (trigger) {
+        console.log('Trigger activated:', trigger.dialogText);
+        this.isDialogActive = true;
+        eventBus.emit('trigger-dialog', trigger.dialogText); // 添加 route 参数
+        if (trigger.route) {
+          eventBus.emit('navigate', trigger.route);
+        }
       }
+      
     }
   }
+
+
+  endDialog() {
+    this.isDialogActive = false;
+  }
+
   
 
   /**

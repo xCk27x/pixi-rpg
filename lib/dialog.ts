@@ -2,6 +2,7 @@
 //import { ref } from 'npm:vue@^3.4.21';
 
 // dialog.ts
+// dialog.ts
 import { ref } from 'vue';
 
 export class Dialog {
@@ -9,6 +10,7 @@ export class Dialog {
   private fullTexts: string[] = []; // 用来保存所有页的文本
   private currentIndex: number = 0; // 当前显示的页索引
   private typingTimeout: any = null; // 用来保存打字效果的定时器
+  private isTyping: boolean = false; // 指示当前文字是否正在输出中
 
   constructor(initialText: string = '') {
     this.dialogText.value = initialText;
@@ -28,6 +30,7 @@ export class Dialog {
 
   startTyping() {
     let index = 0;
+    this.isTyping = true;
     const typeNextCharacter = () => {
       if (index < this.fullTexts[this.currentIndex].length) {
         this.dialogText.value += this.fullTexts[this.currentIndex][index];
@@ -39,6 +42,12 @@ export class Dialog {
       }
     };
     typeNextCharacter();
+  }
+
+  completeTyping() {
+    this.stopTyping();
+    this.dialogText.value = this.fullTexts[this.currentIndex];
+    this.isTyping = false;
   }
 
   nextPage(): boolean {
@@ -59,6 +68,11 @@ export class Dialog {
 
   stopTyping(): void {
     clearTimeout(this.typingTimeout);
+    this.isTyping = false;
+  }
+
+  isTextFullyDisplayed(): boolean {
+    return !this.isTyping;
   }
 }
 

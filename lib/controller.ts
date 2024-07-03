@@ -60,6 +60,7 @@ export class Controller {
 
   
   tickerHandler() {
+    // if (this.world.isDialogActive) return;
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
       // spriteSheet direction update
       if (this.nextDirection[0] !== this.direction) {
@@ -104,16 +105,16 @@ export class Controller {
       console.log('Trigger activated:', trigger.dialogText);
       // 处理触发对话框
       eventBus.emit('trigger-dialog', trigger.dialogText); // 使用事件總線發射事件
-      this.world.lastTriggerPosition = {
-        x: Math.floor(this.world.focusCharacterX / this.world.gridSize),
-        y: Math.floor(this.world.focusCharacterY / this.world.gridSize)
-      };
+      // this.world.lastTriggerPosition = {
+      //   x: Math.floor(this.world.focusCharacterX / this.world.gridSize),
+      //   y: Math.floor(this.world.focusCharacterY / this.world.gridSize)
+      // };
 
       if (trigger.route) {
         eventBus.emit('navigate', trigger.route);
       }
     }else{
-      this.world.checkDistanceFromLastTrigger();
+      // this.world.checkDistanceFromLastTrigger();
     }
     } else {
       this.direction = 'none';
