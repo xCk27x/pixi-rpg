@@ -58,7 +58,25 @@ checkDistanceFromLastTrigger() {
 }
 
 
-  constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
+  // constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
+  //   this.canvas_id = id;
+  //   this.canvas_height = height;
+  //   this.canvas_width = width;
+  //   this.mapContainer = new Container();
+  //   this.mapUpperContainer = new Container();
+  //   this.canvasInit();
+  // }
+
+  // constructor(id: string = 'canvas-container', height: number = 288, width: number = 528) {
+  //   this.canvas_id = id;
+  //   this.canvas_height = height;
+  //   this.canvas_width = width;
+  //   this.mapContainer = new Container();
+  //   this.mapUpperContainer = new Container();
+  //   this.canvasInit();
+  // }
+
+  constructor(id: string = 'canvas-container', height: number = 240, width: number = 440) {
     this.canvas_id = id;
     this.canvas_height = height;
     this.canvas_width = width;
@@ -156,6 +174,15 @@ checkDistanceFromLastTrigger() {
     })
   }
 
+  async addImage(imageUrl: string, x: number, y: number): Promise<void> {
+    const texture = await Assets.load(imageUrl);
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(0);
+    // sprite.position.set(x * this.gridSize, y * this.gridSize);
+    sprite.position.set((this.focusCharacterX + x) * this.gridSize - this.gridSize / 2,(this.focusCharacterY +  y )* this.gridSize -this.gridSize / 2);
+    this.mapContainer.addChild(sprite);
+    console.log(`Image added at (${x}, ${y})`);
+  }
 
   // move(key: {x: number, y: number}, stepSize: number = 1): void {
   //   console.log('Moving direction:', key);

@@ -7,7 +7,8 @@ type Events = {
   'leave-trigger-area': void; // 添加新的事件類型
   'move-start': string;
   'move-stop': string;
-  'navigate': string;   
+  'navigate': string;  
+  
 };
 
 export const eventBus: Emitter<Events> = mitt<Events>();
