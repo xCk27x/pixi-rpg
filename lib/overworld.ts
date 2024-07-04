@@ -44,23 +44,17 @@ isDialogActive: boolean = false;
 //   this.triggers.set(triggerKey, { dialogText, route });
 // }
 
+// addTrigger(x: number, y: number, dialogText: string | string[], ...actions: Function[]): void {
+//   const triggerKey = wallFormat(x, y);
+//   this.triggers.set(triggerKey, { dialogText, actions });
+// }
 addTrigger(x: number, y: number, dialogText: string | string[], ...actions: Function[]): void {
-  const triggerKey = wallFormat(x, y);
-  this.triggers.set(triggerKey, { dialogText, actions });
+  const removeTriggerAction = () => this.removeTrigger(x, y);
+  this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions, removeTriggerAction] });
 }
 
 
-// checkTrigger(): { dialogText: string | string[], route?: string } | null {
-//   const currentPosKey = wallFormat(
-//     Math.floor(this.focusCharacterX / this.gridSize),
-//     Math.floor(this.focusCharacterY / this.gridSize)
-//   );
 
-//   if (this.lastTriggerPosition === currentPosKey) return null;  // 如果位置相同，则不触发对话
-
-//   this.lastTriggerPosition = currentPosKey; // 更新最后触发的位置
-//   return this.triggers.get(currentPosKey) || null;
-// }
 checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
   const currentPosKey = wallFormat(
     Math.floor(this.focusCharacterX / this.gridSize),
@@ -72,6 +66,12 @@ checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
   this.lastTriggerPosition = currentPosKey; // 更新最後觸發的位置
   return this.triggers.get(currentPosKey) || null;
 }
+
+removeTrigger(x: number, y: number): void {
+  const triggerKey = wallFormat(x, y);
+  this.triggers.delete(triggerKey);
+}
+
 
 
 // checkDistanceFromLastTrigger() {
@@ -88,23 +88,6 @@ checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
 // }
 
 
-  // constructor(id: string = 'canvas-container', height: number = 192, width: number = 352) {
-  //   this.canvas_id = id;
-  //   this.canvas_height = height;
-  //   this.canvas_width = width;
-  //   this.mapContainer = new Container();
-  //   this.mapUpperContainer = new Container();
-  //   this.canvasInit();
-  // }
-
-  // constructor(id: string = 'canvas-container', height: number = 288, width: number = 528) {
-  //   this.canvas_id = id;
-  //   this.canvas_height = height;
-  //   this.canvas_width = width;
-  //   this.mapContainer = new Container();
-  //   this.mapUpperContainer = new Container();
-  //   this.canvasInit();
-  // }
 
   constructor(id: string = 'canvas-container', height: number = 240, width: number = 440) {
     this.canvas_id = id;
@@ -215,56 +198,6 @@ checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
   }
 
   
-
-  // move(key: { x: number, y: number }, stepSize: number = 1): void {
-  //   if (this.isDialogActive) {
-  //     // Align the character to the grid before returning
-  //     this.focusCharacterX = Math.floor(this.focusCharacterX / this.gridSize) * this.gridSize;
-  //     this.focusCharacterY = Math.floor(this.focusCharacterY / this.gridSize) * this.gridSize;
-  //     this.mapContainer.x = -this.focusCharacterX;
-  //     this.mapContainer.y = -this.focusCharacterY;
-  //     this.mapUpperContainer.x = -this.focusCharacterX;
-  //     this.mapUpperContainer.y = -this.focusCharacterY;
-  //     this.characterContainer.x = -this.focusCharacterX;
-  //     this.characterContainer.y = -this.focusCharacterY;
-  //     return;
-  //   }
-  
-  //   console.log('Moving direction:', key);
-  //   for (let i = 0; i < stepSize; i++) {
-  //     const nextX = this.focusCharacterX + key.x;
-  //     const nextY = this.focusCharacterY + key.y;
-  //     const nextStep = wallFormat(Math.floor(nextX / this.gridSize), Math.floor(nextY / this.gridSize));
-  
-  //     if (this.walls.has(nextStep)) {
-  //       console.log('Collision detected at step:', nextStep);
-  //       return;
-  //     }
-  
-  //     this.mapContainer.x -= key.x;
-  //     this.mapContainer.y -= key.y;
-  //     this.mapUpperContainer.x -= key.x;
-  //     this.mapUpperContainer.y -= key.y;
-  //     this.characterContainer.x -= key.x;
-  //     this.characterContainer.y -= key.y;
-  //     this.focusCharacterX = nextX;
-  //     this.focusCharacterY = nextY;
-  //   }
-  //   console.log('Current position:', this.focusCharacterX, this.focusCharacterY);
-  
-  //   if (!this.isDialogActive) { // 仅在对话框未激活时检查触发器
-  //     const trigger = this.checkTrigger();
-  //     if (trigger) {
-  //       console.log('Trigger activated:', trigger.dialogText);
-  //       this.isDialogActive = true;
-  //       eventBus.emit('trigger-dialog', trigger.dialogText); // 添加 route 参数
-  //       if (trigger.route) {
-  //         eventBus.emit('navigate', trigger.route);
-  //       }
-  //     }
-      
-  //   }
-  // }
 
 
   move(key: { x: number, y: number }, stepSize: number = 1): void {
