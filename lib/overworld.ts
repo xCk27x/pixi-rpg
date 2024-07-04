@@ -3,7 +3,7 @@ import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
 import {eventBus} from './eventBus'; // 导入事件总线
 
-
+////test
 // type Trigger = {
 //   dialogText: string | string[];
 //   route?: string;
