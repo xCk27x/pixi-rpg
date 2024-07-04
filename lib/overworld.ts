@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite, Container } from 'pixi.js';
+import { Application, Assets, Sprite, Container } from 'pixi.js@^8.1.5';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
 import {eventBus} from './eventBus'; // 导入事件总线
