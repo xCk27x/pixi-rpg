@@ -44,7 +44,8 @@ isDialogActive: boolean = false;
 
 addTrigger(x: number, y: number, dialogText: string | string[], ...actions: Function[]): void {
   const removeTriggerAction = () => this.removeTrigger(x, y);
-  this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions, removeTriggerAction] });
+  // this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions, removeTriggerAction] });
+  this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions ]});
 }
 
 checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
@@ -339,5 +340,29 @@ removeTrigger(x: number, y: number): void {
     return nextStep;
   }
 
+  moveCharacter(character: AnimatedSpritesheet, deltaX: number, deltaY: number, direction: string) {
+    // character.anim.play();
+    character.changeAnime(direction);
+
+    const targetX = character.anim.x + deltaX * this.gridSize;
+    const targetY = character.anim.y + deltaY * this.gridSize;
+    const steps = 16;
+    let step = 0;
+
+    const interval = setInterval(() => {
+      character.anim.x += deltaX * this.gridSize / steps;
+      character.anim.y += deltaY * this.gridSize / steps;
+      step += 1;
+
+      if (step === steps) {
+        clearInterval(interval);
+        // character.anim.stop(); // 停止动画
+      }
+    }, 1000 / 60); // 60 FPS for smooth animation
+  }
+
+  resetLastTriggerPosition() {
+    this.lastTriggerPosition = 0;
+  }
   // overworld.ts
 }
