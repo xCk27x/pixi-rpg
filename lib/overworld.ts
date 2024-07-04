@@ -29,6 +29,7 @@ export class Overworld {
   focusCharacterX: number = 0;
   focusCharacterY: number = 0;
   walls: Set<number> = new Set<number>();
+  images: Map<number, Sprite> = new Map<number, Sprite>(); // 新增此屬性
   private canvas_id: string;
   private mapContainer!: Container;
   private characterContainer!: Container;
@@ -39,28 +40,19 @@ triggers: Map<number, Trigger> = new Map(); // 管理触发器
 lastTriggerPosition: number = 0 // 新增此屬性記錄上次觸發的位置
 isDialogActive: boolean = false;
 
-// addTrigger(x: number, y: number, dialogText: string | string[], route?: string): void {
-//   const triggerKey = wallFormat(x, y);
-//   this.triggers.set(triggerKey, { dialogText, route });
-// }
 
-// addTrigger(x: number, y: number, dialogText: string | string[], ...actions: Function[]): void {
-//   const triggerKey = wallFormat(x, y);
-//   this.triggers.set(triggerKey, { dialogText, actions });
-// }
+
 addTrigger(x: number, y: number, dialogText: string | string[], ...actions: Function[]): void {
   const removeTriggerAction = () => this.removeTrigger(x, y);
   this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions, removeTriggerAction] });
 }
-
-
 
 checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
   const currentPosKey = wallFormat(
     Math.floor(this.focusCharacterX / this.gridSize),
     Math.floor(this.focusCharacterY / this.gridSize)
   );
-  
+
   if (this.lastTriggerPosition === currentPosKey) return null;  // 如果位置相同，則不觸發對話
 
   this.lastTriggerPosition = currentPosKey; // 更新最後觸發的位置
@@ -72,20 +64,6 @@ removeTrigger(x: number, y: number): void {
   this.triggers.delete(triggerKey);
 }
 
-
-
-// checkDistanceFromLastTrigger() {
-//   if (!this.lastTriggerPosition) return;
-
-//   const currentX = Math.floor(this.focusCharacterX / this.gridSize);
-//   const currentY = Math.floor(this.focusCharacterY / this.gridSize);
-//   const distanceX = Math.abs(currentX - this.lastTriggerPosition.x);
-//   const distanceY = Math.abs(currentY - this.lastTriggerPosition.y);
-
-//   if (distanceX > 1 || distanceY > 1) {
-//     eventBus.emit('leave-trigger-area');
-//   }
-// }
 
 
 
@@ -191,12 +169,25 @@ removeTrigger(x: number, y: number): void {
     const texture = await Assets.load(imageUrl);
     const sprite = new Sprite(texture);
     sprite.anchor.set(0);
-    // sprite.position.set(x * this.gridSize, y * this.gridSize);
-    sprite.position.set((this.focusCharacterX + x) * this.gridSize - this.gridSize / 2,(this.focusCharacterY +  y )* this.gridSize -this.gridSize / 2);
+    sprite.position.set((this.focusCharacterX + x) * this.gridSize, (this.focusCharacterY + y) * this.gridSize);
     this.mapContainer.addChild(sprite);
+    const positionKey = wallFormat(x, y);
+    this.images.set(positionKey, sprite);
     console.log(`Image added at (${x}, ${y})`);
   }
 
+  removeImage(x: number, y: number): void {
+    const positionKey = wallFormat(x, y);
+    const sprite = this.images.get(positionKey);
+    if (sprite) {
+      console.log(`Removing image at (${x}, ${y}) with sprite:`, sprite);
+      this.mapContainer.removeChild(sprite);
+      this.images.delete(positionKey);
+      console.log(`Image removed at (${x}, ${y})`);
+    } else {
+      console.log(`No Image found at (${x}, ${y})`);
+    }
+  }
   
 
 

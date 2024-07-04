@@ -59,10 +59,9 @@ export class Controller {
 
 
   
+  
   // tickerHandler() {
-  //   // if (this.world.isDialogActive) return;
   //   if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
-  //     // spriteSheet direction update
   //     if (this.nextDirection[0] !== this.direction) {
   //       this.direction = this.nextDirection[0];
   //       this.world.focusCharacter!.changeAnime(this.direction);
@@ -70,14 +69,13 @@ export class Controller {
   //     }
   
   //     const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
-
+  
   //     if (this.world.walls.has(nextStep)) {
   //       console.log('Collision detected at step:', nextStep);
   //       this.nextDirection.shift();
   //       return;
   //     }
   
-  //     // this.movingProgressRemaining = this.isRunning ? 32 : 16; // 跑步时加快速度
   //     this.movingProgressRemaining = 16; 
   //   }
   
@@ -90,39 +88,21 @@ export class Controller {
   //         this.movingProgressRemaining -= 1;
   //       }
   //     }
-
-  //     // const dire = this.keys[this.direction];
-  //     // // this.world.move(dire);
-  //     // this.world.move(dire, this.isRunning ? 2 : 1);
-  //     // this.movingProgressRemaining -= 1;
-  //     // 打印当前角色位置
+  
   //     console.log('Current position after move:', Math.floor(this.world.focusCharacterX / this.world.gridSize), Math.floor(this.world.focusCharacterY / this.world.gridSize));
-
-  //     // 检查触发器
-
-  //   const trigger = this.world.checkTrigger();
-  //   if (trigger) {
-  //     console.log('Trigger activated:', trigger.dialogText);
-  //     // 处理触发对话框
-  //     eventBus.emit('trigger-dialog', trigger.dialogText); // 使用事件總線發射事件
-  //     // this.world.lastTriggerPosition = {
-  //     //   x: Math.floor(this.world.focusCharacterX / this.world.gridSize),
-  //     //   y: Math.floor(this.world.focusCharacterY / this.world.gridSize)
-  //     // };
-
-  //     if (trigger.route) {
-  //       eventBus.emit('navigate', trigger.route);
+  
+  //     const trigger = this.world.checkTrigger();
+  //     if (trigger) {
+  //       console.log('Trigger activated:', trigger.dialogText);
+  //       eventBus.emit('trigger-dialog', trigger.dialogText);
+  //       trigger.actions.forEach(action => action());
   //     }
-  //   }else{
-  //     // this.world.checkDistanceFromLastTrigger();
-  //   }
   //   } else {
   //     this.direction = 'none';
-  //     // eventBus.emit('leave-trigger-area');
   //     this.world.focusCharacter!.anim.gotoAndStop(0);
   //   }
   // }
-
+  
   tickerHandler() {
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
       if (this.nextDirection[0] !== this.direction) {
