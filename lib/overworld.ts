@@ -67,7 +67,15 @@ removeTrigger(x: number, y: number): void {
 
 
 
-  constructor(id: string = 'canvas-container', height: number = 240, width: number = 440) {
+  // constructor(id: string = 'canvas-container', height: number = 240, width: number = 440) {
+  //   this.canvas_id = id;
+  //   this.canvas_height = height;
+  //   this.canvas_width = width;
+  //   this.mapContainer = new Container();
+  //   this.mapUpperContainer = new Container();
+  //   this.canvasInit();
+  // }
+  constructor(id: string = 'canvas-container', height: number = 160, width: number = 300) {
     this.canvas_id = id;
     this.canvas_height = height;
     this.canvas_width = width;
@@ -138,32 +146,67 @@ removeTrigger(x: number, y: number): void {
    * 
    * @returns The AnimatedSpritesheet object
    */
+  // async loadSprite(sprite: string, focus: boolean = false, pivotX: number = this.canvas_width / 32, pivotY: number = this.canvas_height / 32): Promise<AnimatedSpritesheet> {      
+  //   return fetch(sprite)
+  //   .then(response => response.json())
+  //   .then(async jsonObject => {
+  //     const animSprShe = new AnimatedSpritesheet(sprite, jsonObject);
+  //     this.characters.push(animSprShe);
+  //     if (!pivotX || !pivotY) {
+  //       pivotX = 0;
+  //       pivotY = 0;
+  //     }
+  //     await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + pivotX * 16, pivotY * 16);
+  //     if (animSprShe.anim) {
+  //       if (focus) {
+  //         if (!this.focusCharacter) 
+  //           this.app.stage.addChild(animSprShe.anim);
+  //         this.focusCharacterX = pivotX;
+  //         this.focusCharacterY = pivotY;
+  //         this.focusCharacter = animSprShe;
+  //       } else {
+  //         this.characterContainer.addChild(animSprShe.anim);
+  //       }
+  //       console.log('Sprite loaded');
+  //     }
+  //     return animSprShe;
+  //   })
+  // }
+
   async loadSprite(sprite: string, focus: boolean = false, pivotX: number = this.canvas_width / 32, pivotY: number = this.canvas_height / 32): Promise<AnimatedSpritesheet> {      
     return fetch(sprite)
-    .then(response => response.json())
-    .then(async jsonObject => {
-      const animSprShe = new AnimatedSpritesheet(sprite, jsonObject);
-      this.characters.push(animSprShe);
-      if (!pivotX || !pivotY) {
-        pivotX = 0;
-        pivotY = 0;
-      }
-      await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + pivotX * 16, pivotY * 16);
-      if (animSprShe.anim) {
+      .then(response => response.json())
+      .then(async jsonObject => {
+        const animSprShe = new AnimatedSpritesheet(sprite, jsonObject);
+        this.characters.push(animSprShe);
+        if (!pivotX || !pivotY) {
+          pivotX = 0;
+          pivotY = 0;
+        }
         if (focus) {
-          if (!this.focusCharacter) 
-            this.app.stage.addChild(animSprShe.anim);
-          this.focusCharacterX = pivotX;
-          this.focusCharacterY = pivotY;
-          this.focusCharacter = animSprShe;
+          // 主角角色，位置设为主角的初始位置
+          await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + pivotX * 16, pivotY * 16);
+          if (animSprShe.anim) {
+            if (!this.focusCharacter) 
+              this.app.stage.addChild(animSprShe.anim);
+            this.focusCharacterX = pivotX;
+            this.focusCharacterY = pivotY;
+            this.focusCharacter = animSprShe;
+          }
         } else {
-          this.characterContainer.addChild(animSprShe.anim);
+          // 非主角角色，相对于主角位置进行调整
+          const adjustedX = this.focusCharacterX + pivotX;
+          const adjustedY = this.focusCharacterY + pivotY;
+          await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + adjustedX * 16, adjustedY * 16);
+          if (animSprShe.anim) {
+            this.characterContainer.addChild(animSprShe.anim);
+          }
         }
         console.log('Sprite loaded');
-      }
-      return animSprShe;
-    })
+        return animSprShe;
+      })
   }
+  
 
   async addImage(imageUrl: string, x: number, y: number): Promise<void> {
     const texture = await Assets.load(imageUrl);
