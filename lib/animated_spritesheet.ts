@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite, Texture, Container, Spritesheet, AnimatedSprite } from 'pixi.js@^8.1.5';
+import { Application, Assets, Sprite, Texture, Container, Spritesheet, AnimatedSprite } from 'npm:pixi.js@^8.1.5';
 
 export class AnimatedSpritesheet {
   private jsonUrl: string;
