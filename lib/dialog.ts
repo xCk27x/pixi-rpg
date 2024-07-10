@@ -1,5 +1,6 @@
 // dialog.ts
-import { ref } from 'npm:vue@^3.4.21';
+// import { ref } from 'npm:vue@^3.4.21';
+import { ref } from 'vue';
 
 // dialog.ts
 // dialog.ts

@@ -1,6 +1,9 @@
 // eventBus.ts
-import mitt from 'npm:mitt@^3.0.1';
-import type { Emitter } from 'npm:mitt@^3.0.1';
+// import mitt from 'npm:mitt@^3.0.1';
+// import type { Emitter } from 'npm:mitt@^3.0.1';
+import mitt from 'mitt';
+import type { Emitter } from 'mitt';
+
 
 type Events = {
   'trigger-dialog': string | string[];

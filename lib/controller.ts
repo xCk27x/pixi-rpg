@@ -58,50 +58,7 @@ export class Controller {
   }
 
 
-  
-  
-  // tickerHandler() {
-  //   if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
-  //     if (this.nextDirection[0] !== this.direction) {
-  //       this.direction = this.nextDirection[0];
-  //       this.world.focusCharacter!.changeAnime(this.direction);
-  //       this.world.focusCharacter!.anim.play();
-  //     }
-  
-  //     const nextStep = this.world.getCharacterNextStep(this.keys[this.direction]);
-  
-  //     if (this.world.walls.has(nextStep)) {
-  //       console.log('Collision detected at step:', nextStep);
-  //       this.nextDirection.shift();
-  //       return;
-  //     }
-  
-  //     this.movingProgressRemaining = 16; 
-  //   }
-  
-  //   if (this.movingProgressRemaining > 0) {
-  //     const dire = this.keys[this.direction];
-  //     const stepSize = this.isRunning ? 2 : 1;
-  //     for (let i = 0; i < stepSize; i++) {
-  //       if (this.movingProgressRemaining > 0) {
-  //         this.world.move(dire, 1);
-  //         this.movingProgressRemaining -= 1;
-  //       }
-  //     }
-  
-  //     console.log('Current position after move:', Math.floor(this.world.focusCharacterX / this.world.gridSize), Math.floor(this.world.focusCharacterY / this.world.gridSize));
-  
-  //     const trigger = this.world.checkTrigger();
-  //     if (trigger) {
-  //       console.log('Trigger activated:', trigger.dialogText);
-  //       eventBus.emit('trigger-dialog', trigger.dialogText);
-  //       trigger.actions.forEach(action => action());
-  //     }
-  //   } else {
-  //     this.direction = 'none';
-  //     this.world.focusCharacter!.anim.gotoAndStop(0);
-  //   }
-  // }
+
   
   tickerHandler() {
     if (this.nextDirection[0] !== undefined && this.movingProgressRemaining <= 0) {
