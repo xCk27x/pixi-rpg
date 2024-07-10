@@ -77,12 +77,13 @@ removeTrigger(x: number, y: number): void {
   //   this.mapUpperContainer = new Container();
   //   this.canvasInit();
   // }
-  constructor(id: string = 'canvas-container', height: number = 160, width: number = 300) {
+  constructor(id: string = 'canvas-container', mapName: string, height: number = 160, width: number = 300) {
     this.canvas_id = id;
     this.canvas_height = height;
     this.canvas_width = width;
     this.mapContainer = new Container();
     this.mapUpperContainer = new Container();
+    this.savePositionKey = `character-position-${mapName}`; // Use map name to differentiate keys
     this.canvasInit();
   }
 
@@ -368,6 +369,17 @@ removeTrigger(x: number, y: number): void {
   }
   // overworld.ts
 
+  teleportCharacter(x: number, y: number): void {
+    this.focusCharacterX = x * this.gridSize;
+    this.focusCharacterY = y * this.gridSize;
+    this.mapContainer.x = -this.focusCharacterX;
+    this.mapContainer.y = -this.focusCharacterY;
+    this.mapUpperContainer.x = -this.focusCharacterX;
+    this.mapUpperContainer.y = -this.focusCharacterY;
+    this.characterContainer.x = -this.focusCharacterX;
+    this.characterContainer.y = -this.focusCharacterY;
+    this.saveCharacterPosition(); // Save the new position
+  }
     // Method to save character position to localStorage
     saveCharacterPosition() {
       const position = {
