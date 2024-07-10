@@ -35,7 +35,7 @@ export class Overworld {
   private mapContainer!: Container;
   private characterContainer!: Container;
   private mapUpperContainer!: Container;
-
+  private savePositionKey = 'character-position';
 // 在类定义顶部添加触发器的属性
 triggers: Map<number, Trigger> = new Map(); // 管理触发器
 lastTriggerPosition: number = 0 // 新增此屬性記錄上次觸發的位置
@@ -283,6 +283,7 @@ removeTrigger(x: number, y: number): void {
         trigger.actions.forEach(action => action());
       }
     }
+    this.saveCharacterPosition();
   }
   
 
@@ -366,4 +367,33 @@ removeTrigger(x: number, y: number): void {
     this.lastTriggerPosition = 0;
   }
   // overworld.ts
+
+    // Method to save character position to localStorage
+    saveCharacterPosition() {
+      const position = {
+        x: this.focusCharacterX,
+        y: this.focusCharacterY
+      };
+      localStorage.setItem(this.savePositionKey, JSON.stringify(position));
+    }
+  
+    // Method to load character position from localStorage
+    loadCharacterPosition() {
+      const position = localStorage.getItem(this.savePositionKey);
+      if (position) {
+        const { x, y } = JSON.parse(position);
+        this.focusCharacterX = x;
+        this.focusCharacterY = y;
+        this.mapContainer.x = -x;
+        this.mapContainer.y = -y;
+        this.mapUpperContainer.x = -x;
+        this.mapUpperContainer.y = -y;
+        this.characterContainer.x = -x;
+        this.characterContainer.y = -y;
+      }
+    }
+
+    restorePositionOnLoad() {
+      this.loadCharacterPosition();
+    }
 }
