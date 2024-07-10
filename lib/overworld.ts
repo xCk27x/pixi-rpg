@@ -13,8 +13,9 @@ import {eventBus} from './eventBus'; // 导入事件总线
 type Trigger = {
   dialogText: string | string[];
   actions: Function[];
+  type: string;
+  area?: { x1: number, y1: number, x2: number, y2: number };
 };
-
 
 
 
@@ -37,16 +38,23 @@ export class Overworld {
   private mapUpperContainer!: Container;
   private savePositionKey = 'character-position';
 // 在类定义顶部添加触发器的属性
-triggers: Map<number, Trigger> = new Map(); // 管理触发器
+  triggers: Map<number, Trigger> = new Map(); // 管理触发器
 lastTriggerPosition: number = 0 // 新增此屬性記錄上次觸發的位置
 isDialogActive: boolean = false;
 
 
 
-addTrigger(x: number, y: number, dialogText: string | string[], ...actions: Function[]): void {
-  const removeTriggerAction = () => this.removeTrigger(x, y);
-  // this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions, removeTriggerAction] });
-  this.triggers.set(wallFormat(x, y), { dialogText, actions: [...actions ]});
+addTrigger(x: number, y: number, type: string, dialogText: string | string[], ...actions: Function[]): void {
+  this.triggers.set(wallFormat(x, y), { dialogText, actions, type });
+}
+
+addAreaTrigger(x1: number, y1: number, x2: number, y2: number, type: string, dialogText: string | string[], ...actions: Function[]): void {
+  const triggerActions = actions;
+  for (let x = x1; x <= x2; x++) {
+    for (let y = y1; y <= y2; y++) {
+      this.triggers.set(wallFormat(x, y), { dialogText, actions: triggerActions, type, area: { x1, y1, x2, y2 } });
+    }
+  }
 }
 
 checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
@@ -66,7 +74,17 @@ removeTrigger(x: number, y: number): void {
   this.triggers.delete(triggerKey);
 }
 
-
+removeTriggersByType(type: string): void {
+  const keysToRemove: number[] = [];
+  this.triggers.forEach((trigger, key) => {
+    if (trigger.type === type) {
+      keysToRemove.push(key);
+    }
+  });
+  keysToRemove.forEach((key) => {
+    this.triggers.delete(key);
+  });
+}
 
 
   // constructor(id: string = 'canvas-container', height: number = 240, width: number = 440) {
