@@ -30,6 +30,9 @@ export class Overworld {
   focusCharacter: AnimatedSpritesheet | undefined;
   focusCharacterX: number = 0;
   focusCharacterY: number = 0;
+  
+  centerX: number = 0;
+  centerY: number = 0;
   walls: Set<number> = new Set<number>();
   images: Map<number, Sprite> = new Map<number, Sprite>(); // 新增此屬性
   private canvas_id: string;
@@ -45,12 +48,17 @@ currentTriggerType: string | null = null; // 新增此屬性記錄當前觸發�
 
 
 addTrigger(x: number, y: number, type: string, dialogText: string | string[], ...actions: Function[]): void {
+  if (!dialogText || (Array.isArray(dialogText) && dialogText.length === 0)) {
+    dialogText = [];
+  }
   this.triggers.set(wallFormat(x, y), { dialogText, actions, type });
 }
 
-//先設置左上角（較小的點）和右下角（較大的點）的點
 addAreaTrigger(x1: number, y1: number, x2: number, y2: number, type: string, dialogText: string | string[], ...actions: Function[]): void {
   const triggerActions = actions;
+  if (!dialogText || (Array.isArray(dialogText) && dialogText.length === 0)) {
+    dialogText = [];
+  }
   for (let x = x1; x <= x2; x++) {
     for (let y = y1; y <= y2; y++) {
       this.triggers.set(wallFormat(x, y), { dialogText, actions: triggerActions, type, area: { x1, y1, x2, y2 } });
@@ -58,25 +66,22 @@ addAreaTrigger(x1: number, y1: number, x2: number, y2: number, type: string, dia
   }
 }
 
-checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
+checkTrigger(): { dialogText: string | string[], actions: Function[], type: string } | null {
   const currentPosKey = wallFormat(
     Math.floor(this.focusCharacterX / this.gridSize),
     Math.floor(this.focusCharacterY / this.gridSize)
   );
 
-  // if (this.lastTriggerPosition === currentPosKey) return null;  // 如果位置相同，則不觸發對話
-
-  // this.lastTriggerPosition = currentPosKey; // 更新最後觸發的位置
-
-  // return this.triggers.get(currentPosKey) || null;
   console.log('Current trigger type:', this.currentTriggerType);
   console.log('currentPosKey:', currentPosKey)
   
   const trigger = this.triggers.get(currentPosKey);
  
-  if (!!trigger){
-    // this.currentTriggerType = trigger.type; // 更新當前觸發的類型
+  if (trigger) {
     console.log('Trigger found:', trigger.type);
+    if (trigger.dialogText.length === 0) {
+      return { dialogText: [], actions: trigger.actions, type: trigger.type }; // 如果对话框为空或空数组，返回空的对话文本
+    }
   }
   
   if (!trigger || (this.lastTriggerPosition === currentPosKey) || (this.currentTriggerType === trigger.type)) {
@@ -121,14 +126,6 @@ removeTriggersByType(type: string): void {
 }
 
 
-  // constructor(id: string = 'canvas-container', height: number = 240, width: number = 440) {
-  //   this.canvas_id = id;
-  //   this.canvas_height = height;
-  //   this.canvas_width = width;
-  //   this.mapContainer = new Container();
-  //   this.mapUpperContainer = new Container();
-  //   this.canvasInit();
-  // }
   constructor(id: string = 'canvas-container', mapName: string, height: number = 160, width: number = 300) {
     this.canvas_id = id;
     this.canvas_height = height;
@@ -201,32 +198,7 @@ removeTriggersByType(type: string): void {
    * 
    * @returns The AnimatedSpritesheet object
    */
-  // async loadSprite(sprite: string, focus: boolean = false, pivotX: number = this.canvas_width / 32, pivotY: number = this.canvas_height / 32): Promise<AnimatedSpritesheet> {      
-  //   return fetch(sprite)
-  //   .then(response => response.json())
-  //   .then(async jsonObject => {
-  //     const animSprShe = new AnimatedSpritesheet(sprite, jsonObject);
-  //     this.characters.push(animSprShe);
-  //     if (!pivotX || !pivotY) {
-  //       pivotX = 0;
-  //       pivotY = 0;
-  //     }
-  //     await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + pivotX * 16, pivotY * 16);
-  //     if (animSprShe.anim) {
-  //       if (focus) {
-  //         if (!this.focusCharacter) 
-  //           this.app.stage.addChild(animSprShe.anim);
-  //         this.focusCharacterX = pivotX;
-  //         this.focusCharacterY = pivotY;
-  //         this.focusCharacter = animSprShe;
-  //       } else {
-  //         this.characterContainer.addChild(animSprShe.anim);
-  //       }
-  //       console.log('Sprite loaded');
-  //     }
-  //     return animSprShe;
-  //   })
-  // }
+
 
   async loadSprite(sprite: string, focus: boolean = false, pivotX: number = this.canvas_width / 32, pivotY: number = this.canvas_height / 32): Promise<AnimatedSpritesheet> {      
     return fetch(sprite)
@@ -240,6 +212,8 @@ removeTriggersByType(type: string): void {
         }
         if (focus) {
           // 主角角色，位置设为主角的初始位置
+          this.centerX = pivotX;
+          this.centerY = pivotY;
           await animSprShe.loadAnimSpriteSheet(this.gridSize / 2 + pivotX * 16, pivotY * 16);
           if (animSprShe.anim) {
             if (!this.focusCharacter) 
@@ -267,11 +241,16 @@ removeTriggersByType(type: string): void {
     const texture = await Assets.load(imageUrl);
     const sprite = new Sprite(texture);
     sprite.anchor.set(0);
-    sprite.position.set((this.focusCharacterX + x) * this.gridSize, (this.focusCharacterY + y) * this.gridSize);
+    sprite.position.set((this.centerX + x) * this.gridSize, (this.centerY + y) * this.gridSize);
+    // sprite.position.set((x) * this.gridSize, (y) * this.gridSize);
+
     this.mapContainer.addChild(sprite);
     const positionKey = wallFormat(x, y);
     this.images.set(positionKey, sprite);
-    console.log(`Image added at (${x}, ${y})`);
+
+    // console.log('Images:',(x) * this.gridSize, (y) * this.gridSize) ;
+    // console.log('gridSize:', this.gridSize);
+
   }
 
   removeImage(x: number, y: number): void {
@@ -394,7 +373,6 @@ removeTriggersByType(type: string): void {
     const nextStepX = Math.floor(this.focusCharacterX / this.gridSize) + key.x;
     const nextStepY = Math.floor(this.focusCharacterY / this.gridSize) + key.y;
     const nextStep = wallFormat(nextStepX, nextStepY);
-    // console.log(Next step calculated: (${nextStepX}, ${nextStepY}) -> ${nextStep});
     return nextStep;
   }
 
@@ -414,7 +392,6 @@ removeTriggersByType(type: string): void {
 
       if (step === steps) {
         clearInterval(interval);
-        // character.anim.stop(); // 停止动画
       }
     }, 1000 / 60); // 60 FPS for smooth animation
   }
