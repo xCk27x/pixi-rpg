@@ -1,5 +1,5 @@
-import { Application, Assets, Sprite, Container } from 'npm:pixi.js@^8.1.5';
-// import { Application, Assets, Sprite, Container } from 'pixi.js';
+// import { Application, Assets, Sprite, Container } from 'npm:pixi.js@^8.1.5';
+import { Application, Assets, Sprite, Container } from 'pixi.js';
 import { AnimatedSpritesheet } from './animated_spritesheet';
 import wallFormat from './wallformat';
 import {eventBus} from './eventBus'; // 导入事件总线
@@ -41,13 +41,14 @@ export class Overworld {
   triggers: Map<number, Trigger> = new Map(); // 管理触发器
 lastTriggerPosition: number = 0 // 新增此屬性記錄上次觸發的位置
 isDialogActive: boolean = false;
-
+currentTriggerType: string | null = null; // 新增此屬性記錄當前觸發的類型
 
 
 addTrigger(x: number, y: number, type: string, dialogText: string | string[], ...actions: Function[]): void {
   this.triggers.set(wallFormat(x, y), { dialogText, actions, type });
 }
 
+//先設置左上角（較小的點）和右下角（較大的點）的點
 addAreaTrigger(x1: number, y1: number, x2: number, y2: number, type: string, dialogText: string | string[], ...actions: Function[]): void {
   const triggerActions = actions;
   for (let x = x1; x <= x2; x++) {
@@ -63,10 +64,43 @@ checkTrigger(): { dialogText: string | string[], actions: Function[] } | null {
     Math.floor(this.focusCharacterY / this.gridSize)
   );
 
-  if (this.lastTriggerPosition === currentPosKey) return null;  // 如果位置相同，則不觸發對話
+  // if (this.lastTriggerPosition === currentPosKey) return null;  // 如果位置相同，則不觸發對話
+
+  // this.lastTriggerPosition = currentPosKey; // 更新最後觸發的位置
+
+  // return this.triggers.get(currentPosKey) || null;
+  console.log('Current trigger type:', this.currentTriggerType);
+  console.log('currentPosKey:', currentPosKey)
+  
+  const trigger = this.triggers.get(currentPosKey);
+ 
+  if (!!trigger){
+    // this.currentTriggerType = trigger.type; // 更新當前觸發的類型
+    console.log('Trigger found:', trigger.type);
+  }
+  
+  if (!trigger || (this.lastTriggerPosition === currentPosKey) || (this.currentTriggerType === trigger.type)) {
+    // 檢查鄰近格子
+    const neighbors = [
+      wallFormat(Math.floor(this.focusCharacterX / this.gridSize) + 1, Math.floor(this.focusCharacterY / this.gridSize)),
+      wallFormat(Math.floor(this.focusCharacterX / this.gridSize) - 1, Math.floor(this.focusCharacterY / this.gridSize)),
+      wallFormat(Math.floor(this.focusCharacterX / this.gridSize), Math.floor(this.focusCharacterY / this.gridSize) + 1),
+      wallFormat(Math.floor(this.focusCharacterX / this.gridSize), Math.floor(this.focusCharacterY / this.gridSize) - 1)
+    ];
+    
+    const hasNeighborTrigger = neighbors.some(key => this.triggers.has(key));
+    
+    if (!hasNeighborTrigger) {
+      this.currentTriggerType = null; // 如果周圍沒有觸發器，重置 currentTriggerType
+    }
+    
+    return null;  // 如果位置相同且類型相同，則不觸發對話
+  }
 
   this.lastTriggerPosition = currentPosKey; // 更新最後觸發的位置
-  return this.triggers.get(currentPosKey) || null;
+  this.currentTriggerType = trigger.type; // 更新當前觸發的類型
+  
+  return trigger;
 }
 
 removeTrigger(x: number, y: number): void {
@@ -300,6 +334,9 @@ removeTriggersByType(type: string): void {
   
         // 執行所有動作
         trigger.actions.forEach(action => action());
+      } else {
+        // Reset currentTriggerType if no trigger is found
+        // this.currentTriggerType = null;
       }
     }
     this.saveCharacterPosition();
