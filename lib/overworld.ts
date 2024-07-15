@@ -18,7 +18,6 @@ type Trigger = {
 };
 
 
-
 export class Overworld {
   app!: Application;
   gridSize: number = 16;
@@ -35,11 +34,11 @@ export class Overworld {
   centerY: number = 0;
   walls: Set<number> = new Set<number>();
   images: Map<number, Sprite> = new Map<number, Sprite>(); // 新增此屬性
-  private canvas_id: string;
-  private mapContainer!: Container;
-  private characterContainer!: Container;
-  private mapUpperContainer!: Container;
-  private savePositionKey = 'character-position';
+  canvas_id: string;
+  mapContainer!: Container;
+  characterContainer!: Container;
+  mapUpperContainer!: Container;
+  savePositionKey = 'character-position';
 // 在类定义顶部添加触发器的属性
   triggers: Map<number, Trigger> = new Map(); // 管理触发器
 lastTriggerPosition: number = 0 // 新增此屬性記錄上次觸發的位置
@@ -307,15 +306,13 @@ removeTriggersByType(type: string): void {
     if (!this.isDialogActive) { // 僅在對話框未激活時檢查觸發器
       const trigger = this.checkTrigger();
       if (trigger) {
-        console.log('Trigger activated:', trigger.dialogText);
-        this.isDialogActive = true;
-        eventBus.emit('trigger-dialog', trigger.dialogText);
-  
+        if (trigger.dialogText.length > 0) {
+          console.log('Trigger activated:', trigger.dialogText);
+          this.isDialogActive = true;
+          eventBus.emit('trigger-dialog', trigger.dialogText);
+        }
         // 執行所有動作
         trigger.actions.forEach(action => action());
-      } else {
-        // Reset currentTriggerType if no trigger is found
-        // this.currentTriggerType = null;
       }
     }
     this.saveCharacterPosition();
@@ -376,22 +373,49 @@ removeTriggersByType(type: string): void {
     return nextStep;
   }
 
-  moveCharacter(character: AnimatedSpritesheet, deltaX: number, deltaY: number, direction: string) {
+  // moveCharacter(character: AnimatedSpritesheet, deltaX: number, deltaY: number, direction: string) {
+  //   // character.anim.play();
+  //   character.changeAnime(direction);
+
+  //   const targetX = character.anim.x + deltaX * this.gridSize;
+  //   const targetY = character.anim.y + deltaY * this.gridSize;
+  //   const steps = 16;
+  //   let step = 0;
+
+  //   const interval = setInterval(() => {
+  //     character.anim.x += deltaX * this.gridSize / steps;
+  //     character.anim.y += deltaY * this.gridSize / steps;
+  //     step += 1;
+
+  //     if (step === steps) {
+  //       clearInterval(interval);
+  //     }
+  //   }, 1000 / 60); // 60 FPS for smooth animation
+  // }
+
+  moveCharacter(
+    character: AnimatedSpritesheet,
+    deltaX: number,
+    deltaY: number,
+    direction: string,
+    speed: number = 1
+  ) {
     // character.anim.play();
     character.changeAnime(direction);
 
     const targetX = character.anim.x + deltaX * this.gridSize;
     const targetY = character.anim.y + deltaY * this.gridSize;
-    const steps = 16;
+    const steps = 16 * speed;
     let step = 0;
 
     const interval = setInterval(() => {
-      character.anim.x += deltaX * this.gridSize / steps;
-      character.anim.y += deltaY * this.gridSize / steps;
+      character.anim.x += (deltaX * this.gridSize) / steps;
+      character.anim.y += (deltaY * this.gridSize) / steps;
       step += 1;
 
       if (step === steps) {
         clearInterval(interval);
+        // character.anim.stop(); // 停止动画
       }
     }, 1000 / 60); // 60 FPS for smooth animation
   }
@@ -411,6 +435,15 @@ removeTriggersByType(type: string): void {
     this.characterContainer.x = -this.focusCharacterX;
     this.characterContainer.y = -this.focusCharacterY;
     this.saveCharacterPosition(); // Save the new position
+  }
+
+  moveCamera(x: number, y: number): void {
+    this.mapContainer.x -= x;
+    this.mapContainer.y -= y;
+    this.mapUpperContainer.x -= x;
+    this.mapUpperContainer.y -= y;
+    this.characterContainer.x -= x;
+    this.characterContainer.y -= y;
   }
     // Method to save character position to localStorage
     saveCharacterPosition() {

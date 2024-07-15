@@ -39,12 +39,12 @@ export class Controller {
     down: { x: 0, y: 1},
     right: { x: 1, y: 0},
   }
-  private direction: string = 'down';
-  private nextDirection: string[] = [];
-  private movingProgressRemaining: number = 0;
+  direction: string = 'down';
+  nextDirection: string[] = [];
+  movingProgressRemaining: number = 0;
 
-  private runTimer: number | null = null;
-  private isRunning: boolean = false;
+  runTimer: number | null = null;
+  isRunning: boolean = false;
 
   constructor(world: Overworld) {
     this.world = world;

@@ -1,8 +1,11 @@
 // dialog.ts
 // import { ref } from 'npm:vue@^3.4.21';
-import { ref } from 'vue';
+
 
 // dialog.ts
+// dialog.ts
+import { ref } from 'vue';
+
 // dialog.ts
 // import { ref } from 'vue';
 
@@ -12,7 +15,6 @@ export class Dialog {
   private currentIndex: number = 0; // 当前显示的页索引
   private typingTimeout: any = null; // 用来保存打字效果的定时器
   private isTyping: boolean = false; // 指示当前文字是否正在输出中
-
   constructor(initialText: string = '') {
     this.dialogText.value = initialText;
   }
@@ -26,10 +28,14 @@ export class Dialog {
     this.dialogText.value = '';
     this.currentIndex = 0;
     this.stopTyping(); // 确保在开始新的打字效果前，取消任何现有的打字效果
-    this.startTyping();
+    if (this.fullTexts.length > 0) {
+      this.startTyping();
+    }
   }
 
   startTyping() {
+    if (this.fullTexts.length === 0) return;
+
     let index = 0;
     this.isTyping = true;
     const typeNextCharacter = () => {
@@ -47,7 +53,9 @@ export class Dialog {
 
   completeTyping() {
     this.stopTyping();
-    this.dialogText.value = this.fullTexts[this.currentIndex];
+    if (this.fullTexts.length > 0) {
+      this.dialogText.value = this.fullTexts[this.currentIndex];
+    }
     this.isTyping = false;
   }
 
@@ -74,6 +82,11 @@ export class Dialog {
 
   isTextFullyDisplayed(): boolean {
     return !this.isTyping;
+  }
+
+  checkDialog(): boolean {
+    console.log("this length",this.fullTexts.length);
+    return this.fullTexts.length > 0;
   }
 }
 
